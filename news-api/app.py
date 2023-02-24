@@ -1,9 +1,13 @@
 from termcolor import colored, cprint
+from configparser import ConfigParser 
 import requests
 import json
 from sys import argv
 
-API_KEY = 'API_KEY'
+config = ConfigParser()
+config.read('config.ini')
+
+API_KEY = config['news']['NewsApiKey'] 
 url = ('https://newsapi.org/v2/top-headlines?')
 response = requests.get(url)
 
@@ -27,6 +31,8 @@ def _get_articles(params):
     articles = response.json()['articles']
 
     for article in articles:
+        if article['description'] == None:
+            continue
         cprint(colored(article['title'], 'green', attrs=["bold"]))
         print(colored(article['description'], 'white'))
         print(colored(article['url'], 'light_grey'))
@@ -40,4 +46,7 @@ def json_formatter(js):
 
 if __name__ == "__main__":
     print(f"Getting news for {argv[1]}...\n")
-    get_articles_by_category(argv[1])
+    if argv[1]:
+        get_articles_by_category(argv[1])
+    else:
+        get_us_headlines()
